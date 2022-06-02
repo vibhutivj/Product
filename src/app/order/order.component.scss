@@ -1,0 +1,18 @@
+.card-container {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+    align-items: baseline;
+    align-content: center;
+    row-gap: 20px;
+}
+
+.card {
+    max-width: 35rem;
+    min-width: 30rem;
+
+    .card-header {
+        background: rgb(245,245,245);
+        background: linear-gradient(190deg, rgba(245,245,245,0.7346288857339811) 0%, rgba(244,233,77,1) 27%, rgba(246,157,140,0.9923319669664741) 100%);
+    }
+}

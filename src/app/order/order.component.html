@@ -1,0 +1,60 @@
+<div class="container-fluid my-5">
+    <div class="card-container">
+        <div class="card border-dark">
+            <div class="card-header">Add Items</div>
+            <div class="card-body text-dark">
+                <h6 class="card-title">Begin your journey</h6>
+                <div class="clearfix mt-4"></div>
+                <ng-select
+                    [(ngModel)]="selectedProducts"
+                    placeholder="Product name"
+                    [clearable]="true"
+                    [maxSelectedItems]="5"
+                    [closeOnSelect]="false"
+                    [multiple]="true"
+                    appendTo="body"
+                    [notFoundText]="'No matching products'"
+                    dropdownPosition="bottom"
+                    [trackByFn]="trackByFn"
+                    [minTermLength]="0"
+                    [loading]="productLoading"
+                    typeToSearchText="Search product e.g. NameA0000001 ... NameA0200000"
+                    [items]="products"
+                    bindLabel="productName"
+                    [virtualScroll]="true"
+                    (scrollToEnd)="onScrollToEnd()"
+                    [searchable]="true"
+                    (search)="onSearch($event)"
+                    (add)="onAdd($event)">
+                        <ng-template ng-multi-label-tmp let-items="items" let-clear="clear">
+                            <div class="ng-value" *ngIf="items.length >= 1">
+                                <span class="ng-value-label">
+                                    {{items.length}} product{{items.length>1?'s':''}} selected.
+                                    {{items.length == 5?'Maximum limit reached':''}}
+                                </span>
+                            </div>
+                        </ng-template>
+                </ng-select>
+
+                <p class="card-text">Selected Products :</p>
+                <ul class="list-group mt-4">
+                    <li class="list-group-item" *ngIf="selectedProducts.length == 0"> No products selected.</li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let product of selectedProducts;let i = index">
+                        <span class="me-2">{{product.productName}}</span>
+                        <div class="input-group me-2">
+                            <span class="input-group-text">${{product.productPrice}}</span>
+                            <span class="input-group-text">X</span>
+                            <input type="number" class="form-control" min="1" max="5" aria-label="Quantity for product" [(ngModel)]="product.quantity">
+                            <span class="input-group-text">${{(product.productPrice * product.quantity).toFixed(2)}}</span>
+                        </div>
+                        <i class="bi bi-trash-fill" (click)="removeProduct(i)"></i>
+                    </li>
+                    <li class="list-group-item" *ngIf="selectedProducts.length > 0">
+                        <span class="float-end">Total : ${{getTotal()}}</span>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</div>
