@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { OrderServiceService } from './service/order-service.service';
 
 @Component({
@@ -7,30 +8,30 @@ import { OrderServiceService } from './service/order-service.service';
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.scss']
 })
-export class OrderComponent implements OnInit {
+export class OrderComponent implements OnInit, OnDestroy {
 
   selectedProducts: Array<Product> = [];
   productLoading: boolean = false;
-  product$: Observable<Product[]> | undefined;
-  productInput$ = new Subject<string>();
   searchString: string = '';
   products: Array<Product> = [];
+  private ngUnsubscribe: Subject<void>;
   totalCount = 0;
 
   pageSize = 25;
   offSet = 0;
+  maxSelectedItems = 5;
 
-  cars = [
-      { id: 1, name: 'Volvo' },
-      { id: 2, name: 'Saab' },
-      { id: 3, name: 'Opel' },
-      { id: 4, name: 'Audi' },
-  ];
-
-  constructor(private orderService: OrderServiceService) { }
+  constructor(private orderService: OrderServiceService) {
+    this.ngUnsubscribe = new Subject<void>();
+  }
 
   ngOnInit(): void {
     this.initLoad();
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 
   trackByFn(item: Product) {
@@ -39,7 +40,7 @@ export class OrderComponent implements OnInit {
 
   initLoad() {
     this.productLoading = true;
-    this.orderService.getProducts(this.pageSize, this.offSet, this.searchString).subscribe(
+    this.orderService.getProducts(this.pageSize, this.offSet, this.searchString).pipe(takeUntil(this.ngUnsubscribe)).subscribe(
       (res) => {
         this.products = [...res.data];
         this.totalCount = res.totalCount[0].totalCount;
@@ -55,7 +56,7 @@ export class OrderComponent implements OnInit {
 
   addonLoad() {
     this.productLoading = true;
-    this.orderService.getProducts(this.pageSize, this.offSet, this.searchString).subscribe(
+    this.orderService.getProducts(this.pageSize, this.offSet, this.searchString).pipe(takeUntil(this.ngUnsubscribe)).subscribe(
       (res) => {
         this.products = [...this.products,...res.data];
         // this.totalCount = res.totalCount[0].totalCount;
@@ -77,14 +78,12 @@ export class OrderComponent implements OnInit {
   }
 
   onSearch(event: any) {
-    console.log(event);
     this.searchString = event.term;
     this.offSet = 0;
     this.initLoad();
   }
 
   onAdd(event: any) {
-    console.log(event);
     event.quantity = 1;
   }
 
